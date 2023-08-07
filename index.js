@@ -4,7 +4,7 @@ const jsforce = require('jsforce');
 require('dotenv').config();
 
 const PORT = 8080;
-const SOQL = `SELECT Id, Name, Email, Account.Name FROM Contact`;
+const SOQL = `SELECT Id,Name FROM Contact LIMIT 1`;
 const { SF_LOGIN_URL, SF_USERNAME, SF_PASSWORD, SF_TOKEN } = process.env;
 
 const conn = new jsforce.Connection({
@@ -30,6 +30,19 @@ app.get('/', (req, res) => {
         }
     })
 });
+
+app.get('/contacts', (req, res) => {
+    conn.sobject("Contact")
+        .select('*, Account.*') 
+        .where({LastName:'Messi'})
+        .limit(1)
+        .execute((err, result) => {
+            if (err) return console.error(err);
+            // res.json(result.records);
+            console.log(result.records);
+        });
+});
+
 
 
 app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
